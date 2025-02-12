@@ -20,13 +20,13 @@ def assign_pos_ids(root):
     def traverse(node):
         if node is None:
             return
-        
-        if node.left is None and node.right is None:
-            node.pos_id = counter[0]
-            counter[0] += 1
-        
-        traverse(node.left)
-        traverse(node.right)
+        if node.value != 'ε':
+            if node.left is None and node.right is None:
+                node.pos_id = counter[0]
+                counter[0] += 1
+            
+            traverse(node.left)
+            traverse(node.right)
 
     traverse(root)
     return root
