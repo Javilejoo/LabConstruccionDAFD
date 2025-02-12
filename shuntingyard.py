@@ -99,10 +99,14 @@ def convert_infix_to_postfix(expresion):
 
 #Crear arbol del postfix con graphviz
 class Node:
-    def __init__(self, value=None, left=None, right=None):
+    def __init__(self, value=None, left=None, right=None,pos_id=None):
         self.value = value
         self.left = left
         self.right = right
+        self.pos_id = pos_id
+
+    def __repr__(self):
+        return f"Node({self.value}, id={self.pos_id})"
 
 class Stack:
     def __init__(self):
