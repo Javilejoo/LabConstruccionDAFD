@@ -1,13 +1,18 @@
+
 class Node:
     def __init__(self, value=None, left=None, right=None, pos_id=None):
         self.value = value
         self.left = left
         self.right = right
         self.pos_id = pos_id  # Identificador de posición (para followpos)
+        self.nullable = False
 
     def __repr__(self):
-        return f"Node({self.value}, id={self.pos_id})"
+        return f"Node({self.value}, id={self.pos_id}, nullable={self.nullable})"
 
+    def accept(self, visitor):
+        """ Permite que un visitante procese este nodo """
+        visitor.visit(self)
 
 class Stack:
     def __init__(self):
