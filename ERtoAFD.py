@@ -9,6 +9,7 @@ Algoritmo para transformar una ezpresion regular a un AFD directamente
 7) Calcular lastpos
 8) Calcular followpos
 '''
+import followPosVisitor
 import shuntingyard as sy
 import funciones as fun
 import estructuras
@@ -17,6 +18,7 @@ from nullableVisitor import NullableVisitor
 from firstPosVisitor import FirstPosVisitor
 from lastPosVisitor import LastPosVisitor
 from followPosVisitor import FollowPosVisitor
+from AFDGV import dibujar_AFD
 
 def print_tree(node, level=0):
     """Imprime el árbol de expresión con identificadores de posición."""
@@ -67,6 +69,84 @@ def ERtoAFD(expresion):
         print(f"Pos {pos}: {follows}")
 
     gv_utils.generate_expression_tree_image(root, "expression_tree")
+
+    # Suponiendo que ya tienes el árbol con followpos calculado
+    afd = construir_afd(root,followpos_table)
+    dibujar_AFD(afd, "afd")
+
+    # Imprimir resultados
+    print("Estados:", afd["estados"])
+    print("Alfabeto:", afd["alfabeto"])
+    print("Estado inicial:", afd["inicial"])
+    print("Estados de aceptación:", afd["aceptacion"])
+    print("Transiciones:")
+    for estado, trans in afd["transiciones"].items():
+        print(f"{estado} -- {trans}")
+
+def construir_afd(root, followpos_table):
+    # Obtener todos los símbolos del alfabeto (excluyendo ε y #)
+    alfabeto = set()
+    hojas = []
+    
+    # Función para recolectar símbolos y hojas
+    def recolectar_hojas(node):
+        if node:
+            if node.left is None and node.right is None and node.value != 'ε':
+                if node.value != '#':
+                    alfabeto.add(node.value)
+                hojas.append(node)
+            recolectar_hojas(node.left)
+            recolectar_hojas(node.right)
+    
+    recolectar_hojas(root)
+    
+    # Inicializar estructuras
+    estados = {}  # { estado: {transiciones} }
+    estado_inicial = frozenset(root.firstpos)
+    por_procesar = [estado_inicial]
+    procesados = set()
+    aceptacion = set()
+    
+    # Marcar si un estado contiene la posición del símbolo final (#)
+    pos_final = next(hoja.pos_id for hoja in hojas if hoja.value == '#')
+    
+    while por_procesar:
+        estado_actual = por_procesar.pop(0)
+        if estado_actual in procesados:
+            continue
+        procesados.add(estado_actual)
+        
+        # Verificar si es estado de aceptación
+        if pos_final in estado_actual:
+            aceptacion.add(estado_actual)
+        
+        # Calcular transiciones para cada símbolo
+        transiciones = {}
+        for simbolo in alfabeto:
+            posiciones_simbolo = {hoja.pos_id for hoja in hojas if hoja.value == simbolo}
+            U = set()
+            
+            # Unir followpos de las posiciones que coinciden con el símbolo
+            for pos in estado_actual:
+                if pos in posiciones_simbolo:
+                    U.update(followpos_table.get(pos, set()))
+            
+            if U:
+                U_frozen = frozenset(U)
+                transiciones[simbolo] = U_frozen
+                if U_frozen not in procesados:
+                    por_procesar.append(U_frozen)
+        
+        estados[estado_actual] = transiciones
+    
+    return {
+        "estados": list(procesados),
+        "alfabeto": alfabeto,
+        "transiciones": estados,
+        "inicial": estado_inicial,
+        "aceptacion": list(aceptacion)
+    }
+        
 
 # Leer la expresión regular desde archivo
 expresion = fun.leerER("ER.txt")
