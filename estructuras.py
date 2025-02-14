@@ -7,9 +7,10 @@ class Node:
         self.pos_id = pos_id  # Identificador de posición (para followpos)
         self.nullable = False
         self.firstpos = set()
+        self.lastpos = set()
 
     def __repr__(self):
-        return f"Node({self.value}, id={self.pos_id}, nullable={self.nullable})"
+        return f"Node({self.value}, id={self.pos_id}, nullable={self.nullable}, firstpos={self.firstpos}, lastpos={self.lastpos})"
 
     def accept(self, visitor):
         """ Permite que un visitante procese este nodo """
