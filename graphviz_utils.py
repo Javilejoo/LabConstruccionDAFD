@@ -8,9 +8,9 @@ def generate_expression_tree_image(root, filename):
             is_operator = node.value in {'|', '.', '*', '+'}  # Lista de operadores
             is_epsilon = node.value == 'ε'  # Símbolo epsilon
             if is_operator or is_epsilon:
-                label = f"{node.value}\n(nullable={node.nullable})"
+                label = f"{node.value}\n(nullable={node.nullable}\n(firstpos={node.firstpos})"
             else: 
-                label = f"{node.value}\n(pos={node.pos_id})\n(nullable={node.nullable})"
+                label = f"{node.value}\n(pos={node.pos_id})\n(nullable={node.nullable}\n(firstpos={node.firstpos})"
             dot.node(str(id(node)), label=label)
 
             if node.left:

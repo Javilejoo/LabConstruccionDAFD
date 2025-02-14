@@ -6,6 +6,7 @@ class Node:
         self.right = right
         self.pos_id = pos_id  # Identificador de posición (para followpos)
         self.nullable = False
+        self.firstpos = set()
 
     def __repr__(self):
         return f"Node({self.value}, id={self.pos_id}, nullable={self.nullable})"

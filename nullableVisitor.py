@@ -1,6 +1,6 @@
 class NullableVisitor:
     def visit(self, node):
-        """ Recursivamente calcula `nullable` en el árbol de expresión """
+        """ Recursivamente calcula nullable en el árbol de expresión """
         if node is None:
             return False
         

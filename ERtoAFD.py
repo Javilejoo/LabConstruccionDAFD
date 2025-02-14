@@ -5,12 +5,14 @@ Algoritmo para transformar una ezpresion regular a un AFD directamente
 3) construir el arbol de expresion
 4) asignar identificadores de posicion a los nodos hoja del arbol (simbolos no operadores)
 5) calcular si un nodo es nullable
+6) Calcular firstpos
 '''
 import shuntingyard as sy
 import funciones as fun
 import estructuras
 import graphviz_utils as gv_utils
-from visitor import NullableVisitor
+from nullableVisitor import NullableVisitor
+from firstPosVisitor import FirstPosVisitor
 
 def print_tree(node, level=0):
     """Imprime el árbol de expresión con identificadores de posición."""
@@ -45,8 +47,10 @@ def ERtoAFD(expresion):
         return root
 
     assign_pos_ids(root)
-    visitor = NullableVisitor()
-    root.accept(visitor)
+    visitorNull = NullableVisitor()
+    root.accept(visitorNull)
+    visitorFirstPos = FirstPosVisitor()
+    root.accept(visitorFirstPos)
     gv_utils.generate_expression_tree_image(root, "expression_tree")
 
 # Leer la expresión regular desde archivo
