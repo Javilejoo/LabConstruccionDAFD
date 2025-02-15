@@ -8,8 +8,9 @@ Algoritmo para transformar una ezpresion regular a un AFD directamente
 6) Calcular firstpos
 7) Calcular lastpos
 8) Calcular followpos
+9) Construir el AFD
+10) Simular el AFD
 '''
-import followPosVisitor
 import shuntingyard as sy
 import funciones as fun
 import estructuras
@@ -83,6 +84,15 @@ def ERtoAFD(expresion):
     for estado, trans in afd["transiciones"].items():
         print(f"{estado} -- {trans}")
 
+    veces = input("¿Cuántas cadenas desea evaluar? ")
+    veces = int(veces)
+    for i in range(veces):
+        cadena = input(f"Cadena {i+1}: ")
+        if simular_afd(afd, cadena):
+            print("La cadena es aceptada.")
+        else:
+            print("La cadena no es aceptada.")
+
 def construir_afd(root, followpos_table):
     # Obtener todos los símbolos del alfabeto (excluyendo ε y #)
     alfabeto = set()
@@ -146,6 +156,41 @@ def construir_afd(root, followpos_table):
         "inicial": estado_inicial,
         "aceptacion": list(aceptacion)
     }
+
+def simular_afd(afd, cadena):
+    """
+    Simula el comportamiento de un AFD para determinar si acepta una cadena.
+    
+    Args:
+        afd (dict): Estructura del AFD con claves 'estados', 'alfabeto', 'transiciones', 'inicial', 'aceptacion'
+        cadena (str): Cadena a evaluar
+    
+    Returns:
+        bool: True si la cadena es aceptada, False en caso contrario
+    """
+    
+    # Verificar símbolos no válidos
+    for simbolo in cadena:
+        if simbolo not in afd['alfabeto']:
+            return False
+    
+    # Estado inicial
+    estado_actual = afd['inicial']
+    
+    # Procesar cada símbolo de la cadena
+    for simbolo in cadena:
+        # Obtener transiciones desde el estado actual
+        transiciones = afd['transiciones'].get(estado_actual, {})
+        
+        # Obtener próximo estado
+        estado_actual = transiciones.get(simbolo, None)
+        
+        # Si no hay transición definida
+        if estado_actual is None:
+            return False
+    
+    # Verificar si el estado final es de aceptación
+    return estado_actual in afd['aceptacion']
         
 
 # Leer la expresión regular desde archivo
