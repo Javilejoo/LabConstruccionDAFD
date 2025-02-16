@@ -10,6 +10,7 @@ Algoritmo para transformar una ezpresion regular a un AFD directamente
 8) Calcular followpos
 9) Construir el AFD
 10) Simular el AFD
+11) minimizar el AFD
 '''
 import shuntingyard as sy
 import funciones as fun
@@ -20,6 +21,7 @@ from firstPosVisitor import FirstPosVisitor
 from lastPosVisitor import LastPosVisitor
 from followPosVisitor import FollowPosVisitor
 from AFDGV import dibujar_AFD
+from AFD_minimo import minimizar_AFD
 
 def print_tree(node, level=0):
     """Imprime el árbol de expresión con identificadores de posición."""
@@ -92,6 +94,10 @@ def ERtoAFD(expresion):
             print("La cadena es aceptada.")
         else:
             print("La cadena no es aceptada.")
+
+    # Minimizar el AFD
+    afd_min = minimizar_AFD(afd)
+    dibujar_AFD(afd_min, "afd_min")
 
 def construir_afd(root, followpos_table):
     # Obtener todos los símbolos del alfabeto (excluyendo ε y #)
