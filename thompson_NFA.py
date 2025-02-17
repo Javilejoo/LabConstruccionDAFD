@@ -15,7 +15,7 @@ class AFN:
         self.transiciones[origen].append((simbolo, destino))
 
     def visualizar(self):
-        dot = graphviz.Digraph(comment='AFN')
+        dot = graphviz.Digraph(comment='AFN',format='png')
         for estado in self.transiciones:
             for transicion in self.transiciones[estado]:
                 simbolo, destino = transicion
@@ -26,26 +26,45 @@ class AFN:
         dot.node(str(self.aceptacion), shape='doublecircle', color='red', style='filled', label='final')
         return dot
 
-    def simular(self, cadena, estado_actual=None, indice=0):
-        if estado_actual is None:
-            estado_actual = {self.inicial}
+    def calcular_cierre_epsilon(self, estados):
+        """
+        Calcula el cierre epsilon de un conjunto de estados.
+        """
+        stack = list(estados)
+        cierre = set(estados)
 
-        if indice == len(cadena):
-            return self.aceptacion in estado_actual
-
-        nuevos_estados = set()
-        for estado in estado_actual:
+        while stack:
+            estado = stack.pop()
             if estado in self.transiciones:
                 for simbolo, destino in self.transiciones[estado]:
-                    if simbolo == 'ε':
-                        nuevos_estados.add(destino)
-                    elif simbolo == cadena[indice]:
-                        nuevos_estados.add(destino)
+                    if simbolo == 'ε' and destino not in cierre:
+                        cierre.add(destino)
+                        stack.append(destino)
 
-        if not nuevos_estados:
-            return False
+        return cierre
 
-        return self.simular(cadena, nuevos_estados, indice + 1)
+    def simular_AFN(self, cadena):
+        """
+        Simula el AFN y determina si acepta la cadena.
+        """
+        estados_actuales = self.calcular_cierre_epsilon({self.inicial})  # Obtener cierre-epsilon del estado inicial
+
+        for simbolo in cadena:
+            nuevos_estados = set()
+
+            # Procesar transiciones desde los estados actuales
+            for estado in estados_actuales:
+                if estado in self.transiciones:
+                    for trans_simbolo, destino in self.transiciones[estado]:
+                        if trans_simbolo == simbolo:
+                            nuevos_estados.add(destino)
+
+            # Expandir con cierre-epsilon los nuevos estados
+            estados_actuales = self.calcular_cierre_epsilon(nuevos_estados)
+
+        # Verificar si algún estado actual es de aceptación
+        return self.aceptacion in estados_actuales
+
 
 
 def generar_AFN(postfix):
@@ -103,26 +122,3 @@ def generar_AFN(postfix):
                 pila.append(afn)
 
     return pila.pop()
-
-
-def main():
-    with open('expresiones_regulares/postfix_expressions.txt', 'r', encoding='utf-8') as file:
-        postfix_list = file.readlines()
-
-    for i, postfix in enumerate(postfix_list):
-        postfix = postfix.strip()
-        print(f"Expresión postfix: {postfix}")
-        afn = generar_AFN(postfix)
-        afn.visualizar().render(f'nfa_graph_{i}')
-        print(f"AFN visualizado como nfa_graph_{i}.png generado.\n")
-
-        # Simulación del AFN
-        cadena = input("Ingrese una cadena para simular en el AFN: ")
-        if afn.simular(cadena):
-            print(f"La cadena '{cadena}' es aceptada por el AFN.\n")
-        else:
-            print(f"La cadena '{cadena}' no es aceptada por el AFN.\n")
-
-
-if __name__ == "__main__":
-    main()
