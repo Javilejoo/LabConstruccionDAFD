@@ -22,6 +22,7 @@ from lastPosVisitor import LastPosVisitor
 from followPosVisitor import FollowPosVisitor
 from AFDGV import dibujar_AFD
 from AFD_minimo import minimizar_AFD
+from thompson_NFA import AFN, generar_AFN
 
 def print_tree(node, level=0):
     """Imprime el árbol de expresión con identificadores de posición."""
@@ -201,4 +202,28 @@ def simular_afd(afd, cadena):
 
 # Leer la expresión regular desde archivo
 expresion = fun.leerER("ER.txt")
-ERtoAFD(expresion)
+
+# Preguntar al usuario si desea generar un AFD o un AFN
+opcion = input("¿Desea generar un AFD (1) o un AFN (2)? ")
+if opcion == "1":
+    ERtoAFD(expresion)  # Tu función existente para generar el AFD
+elif opcion == "2":
+    # Convertir la expresión regular a postfix
+    postfix = sy.convert_infix_to_postfix(expresion)
+    
+    # Generar el AFN a partir de la expresión postfix
+    afn = generar_AFN(postfix)
+    
+    # Visualizar el AFN
+    afn.visualizar().render('nfa_graph')
+    print("AFN visualizado como nfa_graph.png generado.\n")
+    
+    # Simulación del AFN
+    cadena = input("Ingrese una cadena para simular en el AFN: ")
+    if afn.simular(cadena):
+        print(f"La cadena '{cadena}' es aceptada por el AFN.\n")
+    else:
+        print(f"La cadena '{cadena}' no es aceptada por el AFN.\n")
+else:
+    print("Opción no válida.")
+
